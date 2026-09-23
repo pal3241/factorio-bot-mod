@@ -1,0 +1,8 @@
+{
+  "name": "factorio-bot-smoke",
+  "version": "0.2.0",
+  "title": "Factorio Bot integration fixture",
+  "author": "Factorio Bot contributors",
+  "factorio_version": "2.0",
+  "dependencies": ["factorio-bot-mod = 0.2.0", "space-age"]
+}

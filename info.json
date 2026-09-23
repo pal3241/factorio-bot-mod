@@ -1,0 +1,9 @@
+{
+  "name": "factorio-bot-mod",
+  "version": "0.2.1",
+  "title": "Factorio Bot World Bridge",
+  "author": "Factorio Bot contributors",
+  "description": "Versioned world sensors, Space Age context, and server-side virtual characters for external bot SDKs.",
+  "factorio_version": "2.0",
+  "dependencies": ["base >= 2.0.77", "? space-age"]
+}
