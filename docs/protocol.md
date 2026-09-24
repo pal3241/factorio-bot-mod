@@ -210,3 +210,24 @@ Mutation for bot/API responses:
 ```
 
 The optional `force` limits visibility to that force. Because this is a mutation, `fbot-enable-actions` must be enabled.
+
+
+## Mineflayer-style character primitives (v0.5)
+
+All methods below are mutations and require `fbot-enable-actions`.
+
+- `bot.inventory`: read virtual-character inventories, crafting state, selected gun and current vehicle.
+- `bot.transfer`: move a real item stack between the bot and a reachable entity inventory.
+- `bot.equip` / `bot.unequip`: move items between main inventory and an explicit Factorio character inventory index.
+- `bot.drop`: remove items from the bot inventory and spill them into the world.
+- `bot.pickup`: enable character picking state for a bounded number of ticks.
+- `bot.attack`: shoot a target entity using the character's currently equipped weapon/ammo.
+- `bot.repair`: repair a reachable target using the character repair state.
+- `bot.place`: place a real entity; consumes the corresponding placement item and checks collision/build distance.
+- `bot.rotate`: rotate a reachable entity.
+- `bot.enter-vehicle` / `bot.leave-vehicle`: set/eject the virtual character as vehicle driver.
+- `bot.drive`: set Factorio riding state for bounded ticks.
+- `bot.select-gun`: change selected character gun slot.
+- `bot.set-recipe`: set a reachable crafting machine recipe.
+
+These endpoints deliberately preserve Factorio rules rather than emulating Minecraft behavior by teleporting, spawning free items, or bypassing reach/collision.
