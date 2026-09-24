@@ -25,6 +25,30 @@ function M.player(event)
   S.emit("player.changed", {event = event.name, player_index = event.player_index})
 end
 
+---@param event EventData.on_console_chat
+function M.chat(event)
+  local payload = {
+    message = event.message,
+    source = event.player_index and "player" or "server"
+  }
+
+  if event.player_index then
+    local player = game.get_player(event.player_index)
+    if player then
+      local surface = player.physical_surface or player.surface
+      local position = player.physical_position or player.position
+      payload.player_index = player.index
+      payload.player_name = player.name
+      payload.connected = player.connected
+      payload.force = player.force.name
+      payload.surface = surface.name
+      payload.position = {x = position.x, y = position.y}
+    end
+  end
+
+  S.emit("chat.message", payload)
+end
+
 ---@param event EventData
 function M.tiles(event)
   S.emit("tiles.changed", {event = event.name, surface_index = event.surface_index})
@@ -46,6 +70,7 @@ function M.register()
   script.on_event(defines.events.on_chunk_generated, M.chunk)
   script.on_event({defines.events.on_research_started, defines.events.on_research_finished,
     defines.events.on_research_reversed}, M.research)
+  script.on_event(defines.events.on_console_chat, M.chat)
   script.on_event({defines.events.on_player_created, defines.events.on_player_joined_game,
     defines.events.on_player_left_game, defines.events.on_player_died, defines.events.on_player_respawned,
     defines.events.on_player_changed_surface, defines.events.on_player_main_inventory_changed}, M.player)
