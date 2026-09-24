@@ -9,6 +9,7 @@ local Threats = require("world.threats")
 local Registry = require("bot.registry")
 local Actions = require("bot.actions")
 local SpaceAge = require("space_age.queries")
+local SpaceCatalog = require("space_age.catalog")
 local M = {}
 
 local queries = {
@@ -27,7 +28,10 @@ local space_age_queries = {
   ["space-age.connections"] = SpaceAge.connections,
   ["space-age.platforms"] = SpaceAge.platforms,
   ["space-age.platform"] = SpaceAge.platform,
-  ["space-age.snapshot"] = SpaceAge.snapshot
+  ["space-age.snapshot"] = SpaceAge.snapshot,
+  ["space-age.content-categories"] = SpaceCatalog.categories,
+  ["space-age.content-summary"] = SpaceCatalog.summary,
+  ["space-age.content"] = SpaceCatalog.query
 }
 local mutations = {
   ['bot.create'] = Registry.create, ['bot.destroy'] = Registry.destroy,
@@ -126,7 +130,7 @@ local function dispatch(request)
   local params = V.object(request.params, "params")
   S.consume_budget()
   if method == "capabilities" then
-    return {mod_version = "0.2.1", api_version = 2, minimum_factorio = "2.0.77",
+    return {mod_version = "0.3.0", api_version = 2, minimum_factorio = "2.0.77",
       query_methods = V.keys(queries), space_age_methods = V.keys(space_age_queries), action_methods = V.keys(mutations),
       additional_methods = {"snapshot", "watch", "unwatch", "capabilities"},
       actions_enabled = settings.global["fbot-enable-actions"].value,
