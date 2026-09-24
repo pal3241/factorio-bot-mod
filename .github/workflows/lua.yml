@@ -1,0 +1,26 @@
+name: Lua CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua 5.2
+        run: sudo apt-get update && sudo apt-get install -y lua5.2
+      - name: Check Lua syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            echo "checking $file"
+            luac5.2 -p "$file"
+          done < <(find . -type f -name '*.lua' -print0)
