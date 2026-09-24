@@ -1,10 +1,10 @@
-# Factorio Bot World Bridge v0.3.0
+# Factorio Bot World Bridge v0.4.0
 
 Mod Lua native untuk sensor dunia dan karakter virtual server-side. Target: Factorio **2.0.77+ pada seri 2.0**, termasuk data Space Age. Tidak memerlukan Node.js, layanan web, AI, atau library Lua eksternal di runtime. Sensor biasa memakai protocol v1; Space Age memakai v2. Dependency Space Age bersifat opsional.
 
 ## Instalasi
 
-1. Salin isi repo ke folder `factorio-bot-mod_0.3.0` dalam direktori `mods` Factorio, atau pasang ZIP rilis. Pada instalasi Windows standar: `%APPDATA%\Factorio\mods`.
+1. Salin isi repo ke folder `factorio-bot-mod_0.4.0` dalam direktori `mods` Factorio, atau pasang ZIP rilis. Pada instalasi Windows standar: `%APPDATA%\Factorio\mods`.
 2. Aktifkan **Factorio Bot World Bridge** dan muat save. Server dan client multiplayer perlu mod yang sama.
 3. Jalankan command ini dari console admin; dari RCON gunakan command yang sama:
 
@@ -12,7 +12,7 @@ Mod Lua native untuk sensor dunia dan karakter virtual server-side. Target: Fact
 /fbot {"api_version":1,"id":"hello","method":"capabilities","params":{}}
 ```
 
-Mod tidak membuka socket sendiri. **Headless server tidak wajib.** Untuk bermain pada instance Factorio desktop yang sama, host world sebagai multiplayer dari GUI lalu aktifkan konfigurasi `local-rcon-socket` dan `local-rcon-password` di Factorio. SDK v0.3 dapat terhubung langsung ke local RCON socket tersebut sehingga hanya ada satu instance Factorio dengan grafik.
+Mod tidak membuka socket sendiri. **Headless server tidak wajib.** Untuk bermain pada instance Factorio desktop yang sama, host world sebagai multiplayer dari GUI lalu aktifkan konfigurasi `local-rcon-socket` dan `local-rcon-password` di Factorio. SDK v0.4 dapat terhubung langsung ke local RCON socket tersebut sehingga hanya ada satu instance Factorio dengan grafik.
 
 Dedicated/headless tetap didukung bila dibutuhkan:
 
@@ -30,7 +30,27 @@ Untuk koneksi jarak jauh, gunakan jaringan privat/tunnel. RCON memberi akses adm
 /fbot {"api_version":1,"id":"world-1","method":"snapshot","params":{"surface":"nauvis","force":"player","area":{"left_top":{"x":-32,"y":-32},"right_bottom":{"x":32,"y":32}},"offset":0,"limit":128}}
 ```
 
-Snapshot mencakup area terbatas. Gunakan `surfaces`, `chunks`, `entities`, `entity`, `resources`, `terrain`, `electric`, `logistics`, `production`, `trains`, `research`, `recipes`, `threats`, `players`, dan `bots` untuk query terarah. Lihat [protocol/API](docs/protocol.md) untuk semua parameter, satuan, pagination, dan arti ketidaklengkapan data.
+Snapshot mencakup area terbatas. Gunakan `surfaces`, `chunks`, `entities`, `entity`, `resources`, `terrain`, `electric`, `logistics`, `production`, `trains`, `research`, `recipes`, `threats`, `players`, `player`, `getlocation`, dan `bots` untuk query terarah. Lihat [protocol/API](docs/protocol.md) untuk semua parameter, satuan, pagination, dan arti ketidaklengkapan data.
+
+
+## Chat dan lokasi player
+
+Mod menangkap pesan chat biasa melalui event Factorio dan menulisnya sebagai event `chat.message` pada ordered event log. Payload player menyertakan `player_index`, `player_name`, force, surface, dan **physical position** saat pesan diterima. Pesan dari server interface tetap dicatat dengan `source = "server"` tetapi tidak mempunyai posisi player.
+
+```text
+/fbot {"api_version":1,"id":"where","method":"getlocation","params":{"name":"Fahri"}}
+/fbot {"api_version":1,"id":"where2","method":"player.location","params":{"player_index":1}}
+```
+
+Lookup `player` mengembalikan state player lengkap yang setara dengan item dari query `players`. `getlocation` dan `player.location` adalah alias yang mengembalikan payload lokasi ringkas.
+
+Jika actions diaktifkan, bridge juga bisa menulis pesan ke chat:
+
+```text
+/fbot {"api_version":1,"id":"say","method":"chat.send","params":{"sender":"Sena","message":"Aku datang.","force":"player"}}
+```
+
+`on_console_chat` hanya dipakai untuk pesan chat biasa. Slash-command Factorio bukan `chat.message` dan sengaja tidak diperlakukan sebagai command bot oleh bridge.
 
 ## Space Age
 
