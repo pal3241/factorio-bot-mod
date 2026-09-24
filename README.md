@@ -2,6 +2,15 @@
 
 Mod Lua native untuk sensor dunia dan karakter virtual server-side. Target: Factorio **2.0.77+ pada seri 2.0**, termasuk data Space Age. Tidak memerlukan Node.js, layanan web, AI, atau library Lua eksternal di runtime. Sensor biasa memakai protocol v1; Space Age memakai v2. Dependency Space Age bersifat opsional.
 
+## Dokumentasi
+
+Index dokumentasi: **[docs/README.md](docs/README.md)**.
+
+- [Installation & Connection](docs/installation.md)
+- [World Sensor API](docs/world-api.md)
+- [Bot Action API](docs/actions-api.md)
+- [Protocol Reference](docs/protocol.md)
+
 ## Instalasi
 
 1. Salin isi repo ke folder `factorio-bot-mod_0.5.0` dalam direktori `mods` Factorio, atau pasang ZIP rilis. Pada instalasi Windows standar: `%APPDATA%\Factorio\mods`.
@@ -54,7 +63,7 @@ Jika actions diaktifkan, bridge juga bisa menulis pesan ke chat:
 
 ## Space Age
 
-Query DLC mencakup planet, space locations/koneksi, platform, jadwal/transit, hub dan inventori, asteroid chunks teramati, context cargo pod/rocket/hub/asteroid collector pada detail entity, semua surface yang tersedia, dan invalidation events. v0.3 juga menambahkan runtime content catalog untuk item, fluid, entity, recipe, technology, quality, tile, space location, dan space connection, termasuk konten Space Age/modded yang aktif pada save. Query hanya membaca data dan tidak membuat surface, planet, atau platform. Pada game tanpa DLC, capability menjelaskan bahwa Space Age tidak aktif.
+Query DLC mencakup planet, space locations/koneksi, platform, jadwal/transit, hub dan inventori, asteroid chunks teramati, context cargo pod/rocket/hub/asteroid collector pada detail entity, semua surface yang tersedia, dan invalidation events. runtime content catalog juga tersedia untuk item, fluid, entity, recipe, technology, quality, tile, space location, dan space connection, termasuk konten Space Age/modded yang aktif pada save. Query hanya membaca data dan tidak membuat surface, planet, atau platform. Pada game tanpa DLC, capability menjelaskan bahwa Space Age tidak aktif.
 
 ```text
 /fbot {"api_version":2,"id":"space","method":"space-age.snapshot","params":{"force":"player"}}
@@ -62,7 +71,7 @@ Query DLC mencakup planet, space locations/koneksi, platform, jadwal/transit, hu
 /fbot {"api_version":2,"id":"catalog","method":"space-age.content","params":{"category":"technologies","offset":0,"limit":128}}
 ```
 
-Validasi v0.2 dijalankan dengan Factorio 2.0.77 dan DLC Space Age aktif. Adapter mod pihak ketiga merupakan milestone v0.3.
+Integrasi runtime perlu diuji terhadap executable Factorio yang digunakan; Lua CI hanya memverifikasi syntax source.
 
 ## Bot virtual
 
