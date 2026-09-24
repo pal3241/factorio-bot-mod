@@ -1,10 +1,10 @@
-# Factorio Bot World Bridge v0.4.0
+# Factorio Bot World Bridge v0.5.0
 
 Mod Lua native untuk sensor dunia dan karakter virtual server-side. Target: Factorio **2.0.77+ pada seri 2.0**, termasuk data Space Age. Tidak memerlukan Node.js, layanan web, AI, atau library Lua eksternal di runtime. Sensor biasa memakai protocol v1; Space Age memakai v2. Dependency Space Age bersifat opsional.
 
 ## Instalasi
 
-1. Salin isi repo ke folder `factorio-bot-mod_0.4.0` dalam direktori `mods` Factorio, atau pasang ZIP rilis. Pada instalasi Windows standar: `%APPDATA%\Factorio\mods`.
+1. Salin isi repo ke folder `factorio-bot-mod_0.5.0` dalam direktori `mods` Factorio, atau pasang ZIP rilis. Pada instalasi Windows standar: `%APPDATA%\Factorio\mods`.
 2. Aktifkan **Factorio Bot World Bridge** dan muat save. Server dan client multiplayer perlu mod yang sama.
 3. Jalankan command ini dari console admin; dari RCON gunakan command yang sama:
 
@@ -12,7 +12,7 @@ Mod Lua native untuk sensor dunia dan karakter virtual server-side. Target: Fact
 /fbot {"api_version":1,"id":"hello","method":"capabilities","params":{}}
 ```
 
-Mod tidak membuka socket sendiri. **Headless server tidak wajib.** Untuk bermain pada instance Factorio desktop yang sama, host world sebagai multiplayer dari GUI lalu aktifkan konfigurasi `local-rcon-socket` dan `local-rcon-password` di Factorio. SDK v0.4 dapat terhubung langsung ke local RCON socket tersebut sehingga hanya ada satu instance Factorio dengan grafik.
+Mod tidak membuka socket sendiri. **Headless server tidak wajib.** Untuk bermain pada instance Factorio desktop yang sama, host world sebagai multiplayer dari GUI lalu aktifkan konfigurasi `local-rcon-socket` dan `local-rcon-password` di Factorio. SDK v0.5 dapat terhubung langsung ke local RCON socket tersebut sehingga hanya ada satu instance Factorio dengan grafik.
 
 Dedicated/headless tetap didukung bila dibutuhkan:
 
@@ -75,7 +75,31 @@ Aktifkan **Settings → Mod settings → Map → fbot-enable-actions**, atau com
 /fbot {"api_version":1,"id":"stop-1","method":"bot.stop","params":{"id":"worker-1"}}
 ```
 
-Lokasi spawn harus sudah generated dan bebas collision. Bot adalah `LuaEntity` bertipe `character`, bukan akun Steam, koneksi LAN palsu, atau `LuaPlayer`. Bot memiliki inventory, health, collision, hand crafting, dan mining native; kematian mengikuti engine. Primitive action mencakup create, destroy, bounded walk, stop, timed mining, hand crafting, dan `bot.build-ghost`. Ghost mengikuti force bot dan meminta item mesin yang dibutuhkan; construction robots Factorio membangunnya jika jaringan memiliki robot dan material. Hive tidak memindahkan item atau mengendalikan robot secara langsung.
+Lokasi spawn harus sudah generated dan bebas collision. Bot adalah `LuaEntity` bertipe `character`, bukan akun Steam, koneksi LAN palsu, atau `LuaPlayer`. Bot memiliki inventory, health, collision, hand crafting, dan mining native; kematian mengikuti engine. Primitive action sekarang mencakup create/destroy, walk/stop, mining, hand crafting, build ghost, inventory transfer, equip/unequip, drop/pickup, shooting combat, repair, real entity placement, rotation, vehicle enter/leave/drive, selected gun, dan machine recipe control. Ghost mengikuti force bot dan meminta item mesin yang dibutuhkan; construction robots Factorio membangunnya jika jaringan memiliki robot dan material. Hive tidak memindahkan item atau mengendalikan robot secara langsung.
+
+
+### Primitive ala Mineflayer
+
+Endpoint mutation tambahan v0.5:
+
+```text
+bot.transfer
+bot.equip
+bot.unequip
+bot.drop
+bot.pickup
+bot.attack
+bot.repair
+bot.place
+bot.rotate
+bot.enter-vehicle
+bot.leave-vehicle
+bot.drive
+bot.select-gun
+bot.set-recipe
+```
+
+Mutation tetap mengikuti aturan dunia Factorio: transfer membutuhkan entity dalam reach, placement membutuhkan item nyata di inventory dan lolos collision/build-distance, attack membutuhkan weapon/ammo yang dapat menembak target, repair memakai repair state karakter, dan kendaraan memakai driver/riding state engine. Bridge tidak membuat item gratis atau teleport untuk meniru API.
 
 ## Event dan subscription
 
