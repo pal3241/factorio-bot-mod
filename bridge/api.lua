@@ -9,6 +9,7 @@ local Threats = require("world.threats")
 local Players = require("world.players")
 local Registry = require("bot.registry")
 local Actions = require("bot.actions")
+local Extended = require("bot.extended")
 local Chat = require("bridge.chat")
 local SpaceAge = require("space_age.queries")
 local SpaceCatalog = require("space_age.catalog")
@@ -21,7 +22,7 @@ local queries = {
   logistics = Networks.logistics, trains = Networks.trains, threats = Threats.query,
   bots = Registry.list, players = Players.list, player = Players.get,
   ["player.location"] = Players.location, getlocation = Players.location, bot = Registry.get,
-  shared = Registry.shared, craftable = Actions.craftable, delta = S.delta,
+  shared = Registry.shared, craftable = Actions.craftable, ["bot.inventory"] = Extended.inventory, delta = S.delta,
   entity = function(params) return E.detail(E.resolve(params)) end
 }
 local space_age_queries = {
@@ -40,6 +41,12 @@ local mutations = {
   ['bot.create'] = Registry.create, ['bot.destroy'] = Registry.destroy,
   ['bot.walk'] = Actions.walk, ['bot.stop'] = Actions.stop, ['bot.mine'] = Actions.mine,
   ['bot.craft'] = Actions.craft, ['bot.build-ghost'] = Actions.build_ghost,
+  ['bot.transfer'] = Extended.transfer, ['bot.drop'] = Extended.drop,
+  ['bot.pickup'] = Extended.pickup, ['bot.attack'] = Extended.attack,
+  ['bot.repair'] = Extended.repair, ['bot.place'] = Extended.place,
+  ['bot.rotate'] = Extended.rotate, ['bot.enter-vehicle'] = Extended.enter_vehicle,
+  ['bot.leave-vehicle'] = Extended.leave_vehicle, ['bot.drive'] = Extended.drive,
+  ['bot.select-gun'] = Extended.select_gun, ['bot.set-recipe'] = Extended.set_recipe,
   ['shared.write'] = Registry.write_shared, ['chat.send'] = Chat.send
 }
 local watchable = {entities = true, entity = true, bot = true, chunks = true, resources = true, electric = true, logistics = true,
@@ -134,12 +141,13 @@ local function dispatch(request)
   local params = V.object(request.params, "params")
   S.consume_budget()
   if method == "capabilities" then
-    return {mod_version = "0.4.0", api_version = 2, minimum_factorio = "2.0.77",
+    return {mod_version = "0.5.0", api_version = 2, minimum_factorio = "2.0.77",
       query_methods = V.keys(queries), space_age_methods = V.keys(space_age_queries), action_methods = V.keys(mutations),
       additional_methods = {"snapshot", "watch", "unwatch", "capabilities"},
       actions_enabled = settings.global["fbot-enable-actions"].value,
       enums = {direction = defines.direction, entity_status = defines.entity_status,
-        train_state = defines.train_state, inventory = defines.inventory},
+        train_state = defines.train_state, inventory = defines.inventory,
+        shooting = defines.shooting, riding = defines.riding},
       limits = {area_side = 128, entities_scanned = 16384, page = 256, event_retention = 2048,
         subscriptions = 8, bots = 32, request_bytes = 8192, response_bytes = 1048576},
       observation = "trusted-server-omniscient", virtual_bot = "server-side-character-not-LuaPlayer",
