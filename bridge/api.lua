@@ -6,8 +6,10 @@ local Resources = require("world.resources")
 local Force = require("world.force")
 local Networks = require("world.networks")
 local Threats = require("world.threats")
+local Players = require("world.players")
 local Registry = require("bot.registry")
 local Actions = require("bot.actions")
+local Chat = require("bridge.chat")
 local SpaceAge = require("space_age.queries")
 local SpaceCatalog = require("space_age.catalog")
 local M = {}
@@ -17,7 +19,8 @@ local queries = {
   entities = E.query, resources = Resources.query, research = Force.research,
   recipes = Force.recipes, production = Force.production, electric = Networks.electric,
   logistics = Networks.logistics, trains = Networks.trains, threats = Threats.query,
-  bots = Registry.list, players = Registry.players, bot = Registry.get,
+  bots = Registry.list, players = Players.list, player = Players.get,
+  ["player.location"] = Players.location, getlocation = Players.location, bot = Registry.get,
   shared = Registry.shared, craftable = Actions.craftable, delta = S.delta,
   entity = function(params) return E.detail(E.resolve(params)) end
 }
@@ -36,7 +39,8 @@ local space_age_queries = {
 local mutations = {
   ['bot.create'] = Registry.create, ['bot.destroy'] = Registry.destroy,
   ['bot.walk'] = Actions.walk, ['bot.stop'] = Actions.stop, ['bot.mine'] = Actions.mine,
-  ['bot.craft'] = Actions.craft, ['bot.build-ghost'] = Actions.build_ghost, ['shared.write'] = Registry.write_shared
+  ['bot.craft'] = Actions.craft, ['bot.build-ghost'] = Actions.build_ghost,
+  ['shared.write'] = Registry.write_shared, ['chat.send'] = Chat.send
 }
 local watchable = {entities = true, entity = true, bot = true, chunks = true, resources = true, electric = true, logistics = true,
   threats = true, research = true, bots = true, production = true, trains = true,
@@ -62,7 +66,7 @@ function M.snapshot(params)
   return {scope = "bounded-area", chunks = Map.chunks(params), entities = E.query(params),
     resources = Resources.query(params), electric = Networks.electric(params),
     logistics = Networks.logistics(params), threats = Threats.query(params),
-    research = Force.research(params), bots = Registry.list(params), players = Registry.players(params),
+    research = Force.research(params), bots = Registry.list(params), players = Players.list(params),
     production = Force.production(params), trains = Networks.trains(params)}
 end
 
@@ -130,7 +134,7 @@ local function dispatch(request)
   local params = V.object(request.params, "params")
   S.consume_budget()
   if method == "capabilities" then
-    return {mod_version = "0.3.0", api_version = 2, minimum_factorio = "2.0.77",
+    return {mod_version = "0.4.0", api_version = 2, minimum_factorio = "2.0.77",
       query_methods = V.keys(queries), space_age_methods = V.keys(space_age_queries), action_methods = V.keys(mutations),
       additional_methods = {"snapshot", "watch", "unwatch", "capabilities"},
       actions_enabled = settings.global["fbot-enable-actions"].value,
