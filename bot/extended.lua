@@ -107,6 +107,49 @@ function M.transfer(params)
   return result
 end
 
+function M.equip(params)
+  local _, character = R.resolve(params)
+  local count = V.integer(params.count or 1, "count", 1, 1000)
+  local target_index = V.integer(params.inventory_index, "inventory_index", 1, 255)
+  local source = character.get_main_inventory()
+  local destination = character.get_inventory(target_index)
+  if not source then V.fail("NOT_FOUND", "character has no main inventory") end
+  if not destination then V.fail("NOT_FOUND", "character does not expose target equipment inventory") end
+
+  local requested = stack(params, count)
+  local removed = source.remove(requested)
+  if removed == 0 then V.fail("NOT_FOUND", "main inventory does not contain requested item") end
+  local inserted = destination.insert(stack(params, removed))
+  if inserted < removed then source.insert(stack(params, removed - inserted)) end
+  if inserted == 0 then V.fail("COLLISION", "target equipment inventory rejected the item") end
+
+  S.emit("bot.equipped", {id = params.id, name = requested.name, quality = requested.quality,
+    inventory_index = target_index, count = inserted})
+  return {id = params.id, name = requested.name, quality = requested.quality,
+    inventory_index = target_index, count = inserted}
+end
+
+function M.unequip(params)
+  local _, character = R.resolve(params)
+  local count = V.integer(params.count or 1, "count", 1, 1000)
+  local source_index = V.integer(params.inventory_index, "inventory_index", 1, 255)
+  local source = character.get_inventory(source_index)
+  local destination = character.get_main_inventory()
+  if not source then V.fail("NOT_FOUND", "character does not expose source equipment inventory") end
+  if not destination then V.fail("NOT_FOUND", "character has no main inventory") end
+
+  local requested = stack(params, count)
+  local removed = source.remove(requested)
+  if removed == 0 then V.fail("NOT_FOUND", "equipment inventory does not contain requested item") end
+  local inserted = destination.insert(stack(params, removed))
+  if inserted < removed then source.insert(stack(params, removed - inserted)) end
+
+  S.emit("bot.unequipped", {id = params.id, name = requested.name, quality = requested.quality,
+    inventory_index = source_index, count = inserted})
+  return {id = params.id, name = requested.name, quality = requested.quality,
+    inventory_index = source_index, count = inserted}
+end
+
 function M.drop(params)
   local _, character = R.resolve(params)
   local count = V.integer(params.count, "count", 1, 1000000)
