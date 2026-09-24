@@ -1,10 +1,10 @@
-# Factorio Bot World Bridge v0.2.1
+# Factorio Bot World Bridge v0.3.0
 
 Mod Lua native untuk sensor dunia dan karakter virtual server-side. Target: Factorio **2.0.77+ pada seri 2.0**, termasuk data Space Age. Tidak memerlukan Node.js, layanan web, AI, atau library Lua eksternal di runtime. Sensor biasa memakai protocol v1; Space Age memakai v2. Dependency Space Age bersifat opsional.
 
 ## Instalasi
 
-1. Salin isi repo ke folder `factorio-bot-mod_0.2.1` dalam direktori `mods` Factorio, atau pasang ZIP rilis. Pada instalasi Windows standar: `%APPDATA%\Factorio\mods`.
+1. Salin isi repo ke folder `factorio-bot-mod_0.3.0` dalam direktori `mods` Factorio, atau pasang ZIP rilis. Pada instalasi Windows standar: `%APPDATA%\Factorio\mods`.
 2. Aktifkan **Factorio Bot World Bridge** dan muat save. Server dan client multiplayer perlu mod yang sama.
 3. Jalankan command ini dari console admin; dari RCON gunakan command yang sama:
 
@@ -12,11 +12,15 @@ Mod Lua native untuk sensor dunia dan karakter virtual server-side. Target: Fact
 /fbot {"api_version":1,"id":"hello","method":"capabilities","params":{}}
 ```
 
-Mod tidak membuka socket sendiri. Jalankan Factorio headless dengan RCON yang terautentikasi, misalnya:
+Mod tidak membuka socket sendiri. **Headless server tidak wajib.** Untuk bermain pada instance Factorio desktop yang sama, host world sebagai multiplayer dari GUI lalu aktifkan konfigurasi `local-rcon-socket` dan `local-rcon-password` di Factorio. SDK v0.3 dapat terhubung langsung ke local RCON socket tersebut sehingga hanya ada satu instance Factorio dengan grafik.
+
+Dedicated/headless tetap didukung bila dibutuhkan:
 
 ```text
 factorio --start-server factory.zip --rcon-bind 127.0.0.1:27015 --rcon-password REPLACE_WITH_YOUR_PASSWORD
 ```
+
+Factorio sendiri tidak menyediakan RCON untuk true single-player; direct mode berarti GUI-hosted multiplayer pada instance desktop yang sedang dimainkan.
 
 Untuk koneksi jarak jauh, gunakan jaringan privat/tunnel. RCON memberi akses administrator server; protocol ini bukan batas keamanan bagi pemilik kredensial RCON. Query bersifat **server-omniscient**, termasuk area generated yang belum di-chart. Command hanya tersedia untuk admin dan console server; remote interface ditujukan untuk mod tepercaya dalam save yang sama.
 
@@ -30,11 +34,12 @@ Snapshot mencakup area terbatas. Gunakan `surfaces`, `chunks`, `entities`, `enti
 
 ## Space Age
 
-Query DLC mencakup planet, space locations/koneksi, platform, jadwal/transit, hub dan inventori, asteroid chunks teramati, context cargo pod/rocket/hub/asteroid collector pada detail entity, semua surface yang tersedia, dan invalidation events. Query hanya membaca data dan tidak membuat surface, planet, atau platform. Pada game tanpa DLC, capability menjelaskan bahwa Space Age tidak aktif.
+Query DLC mencakup planet, space locations/koneksi, platform, jadwal/transit, hub dan inventori, asteroid chunks teramati, context cargo pod/rocket/hub/asteroid collector pada detail entity, semua surface yang tersedia, dan invalidation events. v0.3 juga menambahkan runtime content catalog untuk item, fluid, entity, recipe, technology, quality, tile, space location, dan space connection, termasuk konten Space Age/modded yang aktif pada save. Query hanya membaca data dan tidak membuat surface, planet, atau platform. Pada game tanpa DLC, capability menjelaskan bahwa Space Age tidak aktif.
 
 ```text
 /fbot {"api_version":2,"id":"space","method":"space-age.snapshot","params":{"force":"player"}}
 /fbot {"api_version":2,"id":"platforms","method":"space-age.platforms","params":{"force":"player","offset":0,"limit":128}}
+/fbot {"api_version":2,"id":"catalog","method":"space-age.content","params":{"category":"technologies","offset":0,"limit":128}}
 ```
 
 Validasi v0.2 dijalankan dengan Factorio 2.0.77 dan DLC Space Age aktif. Adapter mod pihak ketiga merupakan milestone v0.3.
