@@ -148,3 +148,65 @@ Kode utama: INVALID_REQUEST, INVALID_JSON, INVALID_ARGUMENT, VERSION_MISMATCH, U
 Engine error ditampilkan dengan pesan asli; SDK tidak boleh menutupinya dengan data kosong. Retriable rate-limit ditangani client setelah tick maju; input, version, collision, atau conflict harus diselesaikan dahulu. Mutation timeout harus direkonsiliasi, bukan blind retry. Schema storage v1 dipertahankan saat reload/configuration change; schema lain ditolak eksplisit. Penambahan field v1 boleh diabaikan client; breaking contract memerlukan remote interface/version baru.
 
 Cakupan v0.2 diuji di Factorio 2.0.77 dengan Space Age, Quality, dan Elevated Rails aktif. Entity segmented unit terbaca lewat sensor generik LuaEntity; adapter khusus mod pihak ketiga adalah milestone v0.3. API ini menambah v2 tanpa menghapus method v1.
+
+
+## Chat and player location (v0.4)
+
+### `player`
+
+Looks up one player by `name` or `player_index` and returns the same structured player view used by `players`.
+
+```json
+{"api_version":1,"id":"p1","method":"player","params":{"name":"Fahri"}}
+```
+
+### `getlocation` / `player.location`
+
+Aliases that return the player's current physical location:
+
+```json
+{
+  "player_index": 1,
+  "name": "Fahri",
+  "connected": true,
+  "force": "player",
+  "surface": "nauvis",
+  "position": {"x": 12.5, "y": -8.25}
+}
+```
+
+The physical position/surface are used so a remote/map controller view does not move the reported body location.
+
+### `chat.message` event
+
+Plain in-game chat is appended to the normal ordered delta event log:
+
+```json
+{
+  "sequence": 42,
+  "tick": 12345,
+  "kind": "chat.message",
+  "data": {
+    "source": "player",
+    "message": "Sena sini",
+    "player_index": 1,
+    "player_name": "Fahri",
+    "connected": true,
+    "force": "player",
+    "surface": "nauvis",
+    "position": {"x": 12.5, "y": -8.25}
+  }
+}
+```
+
+Server-interface messages use `source: "server"` and have no player position. Factorio slash commands are not emitted as `chat.message`.
+
+### `chat.send`
+
+Mutation for bot/API responses:
+
+```json
+{"api_version":1,"id":"say1","method":"chat.send","params":{"sender":"Sena","message":"Aku datang.","force":"player"}}
+```
+
+The optional `force` limits visibility to that force. Because this is a mutation, `fbot-enable-actions` must be enabled.
