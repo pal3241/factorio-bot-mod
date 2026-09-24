@@ -1,6 +1,7 @@
 local V = require("bridge.validate")
 local S = require("bridge.state")
 local R = require("bot.registry")
+local Extended = require("bot.extended")
 local M = {}
 
 ---@param bot BotRecord
@@ -28,6 +29,7 @@ function M.stop(params)
   local bot, entity = R.resolve(params)
   entity.walking_state = {walking = false, direction = defines.direction.north}
   entity.mining_state = {mining = false}
+  Extended.stop(entity)
   set_action(bot, nil)
   S.emit("bot.stopped", {id = bot.id})
   return {id = bot.id}
@@ -132,6 +134,12 @@ function M.tick()
           S.emit("bot.target_lost", {id = id})
         else
           entity.mining_state = {mining = true, position = action.position}
+        end
+      else
+        local running = Extended.tick_action(bot, entity, action)
+        if running == false then
+          M.stop({id = id})
+          S.emit("bot.target_lost", {id = id, action = action.kind})
         end
       end
     elseif action then
